@@ -1,0 +1,243 @@
+# SPDX-License-Identifier: GPL-2.0
+
+load("@rules_pkg//pkg:install.bzl", "pkg_install")
+load("@rules_pkg//pkg:mappings.bzl", "pkg_files", "strip_prefix")
+load(
+    "//build/kernel/kleaf:kernel.bzl",
+    "kernel_build",
+)
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+
+string_flag(
+    name = "kernel_version",
+    build_setting_default = "6.12",
+    values = ["6.12", "6.18"],
+)
+config_setting(
+    name = "kernel_612",
+    flag_values = {":kernel_version": "6.12"},
+)
+config_setting(
+    name = "kernel_618",
+    flag_values = {":kernel_version": "6.18"},
+)
+
+_TEGRA_MODULES_LIST = [
+    # keep sorted
+    "drivers/ata/ahci_tegra.ko",
+    "drivers/ata/libahci.ko",
+    "drivers/ata/libahci_platform.ko",
+    "drivers/ata/libata.ko",
+    "drivers/bluetooth/btintel.ko",
+    "drivers/bluetooth/btrtl.ko",
+    "drivers/bluetooth/btusb.ko",
+    "drivers/bus/tegra-aconnect.ko",
+    "drivers/cpufreq/cpufreq-dt.ko",
+    "drivers/cpufreq/tegra124-cpufreq.ko",
+    "drivers/cpufreq/tegra186-cpufreq.ko",
+    "drivers/cpufreq/tegra194-cpufreq.ko",
+    "drivers/devfreq/tegra30-devfreq.ko",
+    "drivers/dma/tegra186-gpc-dma.ko",
+    "drivers/dma/tegra20-apb-dma.ko",
+    "drivers/dma/tegra210-adma.ko",
+    "drivers/dma-buf/heaps/system_heap.ko",
+    "drivers/firmware/qcom/qcom-scm.ko",
+    "drivers/firmware/qcom/qcom_tzmem.ko",
+    "drivers/gpio/gpio-max77620.ko",
+    "drivers/gpio/gpio-pca953x.ko",
+    "drivers/gpio/gpio-tegra.ko",
+    "drivers/gpio/gpio-tegra186.ko",
+    "drivers/gpu/drm/bridge/analogix/anx7625.ko",
+    "drivers/gpu/drm/display/drm_display_helper.ko",
+    "drivers/gpu/drm/display/drm_dp_aux_bus.ko",
+    "drivers/gpu/drm/nouveau/nouveau.ko",
+    "drivers/gpu/drm/panel/panel-simple.ko",
+    "drivers/gpu/drm/scheduler/gpu-sched.ko",
+    "drivers/gpu/drm/tegra/tegra-drm.ko",
+    "drivers/gpu/drm/drm_exec.ko",
+    "drivers/gpu/drm/drm_gpuvm.ko",
+    "drivers/gpu/drm/drm_ttm_helper.ko",
+    "drivers/gpu/host1x/host1x.ko",
+    "drivers/hid/hid-nvidia-shield.ko",
+    "drivers/hwmon/hwmon.ko",
+    "drivers/hwmon/ina3221.ko",
+    "drivers/hwmon/lm90.ko",
+    "drivers/hwmon/pwm-fan.ko",
+    "drivers/i2c/algos/i2c-algo-bit.ko",
+    "drivers/i2c/busses/i2c-tegra.ko",
+    "drivers/i2c/busses/i2c-tegra-bpmp.ko",
+    "drivers/i2c/i2c-dev.ko",
+    "drivers/i2c/i2c-mux.ko",
+    "drivers/iio/buffer/industrialio-triggered-buffer.ko",
+    "drivers/iio/buffer/kfifo_buf.ko",
+    "drivers/iio/common/inv_sensors/inv_sensors_timestamp.ko",
+    "drivers/iio/imu/inv_mpu6050/inv-mpu6050.ko",
+    "drivers/iio/imu/inv_mpu6050/inv-mpu6050-i2c.ko",
+    "drivers/iommu/arm/arm-smmu/arm_smmu.ko",
+    "drivers/media/cec/platform/tegra/tegra_cec.ko",
+    "drivers/mfd/max77620.ko",
+    "drivers/mmc/host/cqhci.ko",
+    "drivers/mmc/host/sdhci-tegra.ko",
+    "drivers/mtd/chips/chipreg.ko",
+    "drivers/mtd/parsers/ofpart.ko",
+    "drivers/mtd/spi-nor/spi-nor.ko",
+    "drivers/mtd/mtd.ko",
+    "drivers/mtd/mtd_blkdevs.ko",
+    "drivers/mtd/mtdblock.ko",
+    "drivers/net/ethernet/realtek/r8169.ko",
+    "drivers/net/ethernet/stmicro/stmmac/dwmac-dwc-qos-eth.ko",
+    "drivers/net/ethernet/stmicro/stmmac/dwmac-tegra.ko",
+    "drivers/net/ethernet/stmicro/stmmac/stmmac.ko",
+    "drivers/net/ethernet/stmicro/stmmac/stmmac-platform.ko",
+    "drivers/net/pcs/pcs_xpcs.ko",
+    "drivers/net/wireless/broadcom/brcm80211/brcmfmac/bca/brcmfmac-bca.ko",
+    "drivers/net/wireless/broadcom/brcm80211/brcmfmac/cyw/brcmfmac-cyw.ko",
+    "drivers/net/wireless/broadcom/brcm80211/brcmfmac/wcc/brcmfmac-wcc.ko",
+    "drivers/net/wireless/broadcom/brcm80211/brcmfmac/brcmfmac.ko",
+    "drivers/net/wireless/broadcom/brcm80211/brcmutil/brcmutil.ko",
+    "drivers/net/wireless/intel/iwlwifi/iwlwifi.ko",
+    "drivers/net/wireless/realtek/rtw88/rtw88_8821c.ko",
+    "drivers/net/wireless/realtek/rtw88/rtw88_8821cu.ko",
+    "drivers/net/wireless/realtek/rtw88/rtw88_8822c.ko",
+    "drivers/net/wireless/realtek/rtw88/rtw88_8822ce.ko",
+    "drivers/net/wireless/realtek/rtw88/rtw88_core.ko",
+    "drivers/net/wireless/realtek/rtw88/rtw88_pci.ko",
+    "drivers/net/wireless/realtek/rtw88/rtw88_usb.ko",
+    "drivers/net/wireless/realtek/rtw89/rtw89_8852c.ko",
+    "drivers/net/wireless/realtek/rtw89/rtw89_8852ce.ko",
+    "drivers/net/wireless/realtek/rtw89/rtw89_core.ko",
+    "drivers/net/wireless/realtek/rtw89/rtw89_pci.ko",
+    "drivers/pci/controller/dwc/pcie-tegra194.ko",
+    "drivers/pci/controller/pci-tegra.ko",
+    "drivers/phy/tegra/phy-tegra-xusb.ko",
+    "drivers/phy/tegra/phy-tegra194-p2u.ko",
+    "drivers/pinctrl/pinctrl-max77620.ko",
+    "drivers/power/supply/bq24190_charger.ko",
+    "drivers/power/supply/bq27xxx_battery.ko",
+    "drivers/power/supply/bq27xxx_battery_i2c.ko",
+    "drivers/pwm/pwm-tegra.ko",
+    "drivers/regulator/max77620-regulator.ko",
+    "drivers/regulator/max77812-regulator.ko",
+    "drivers/regulator/max8973-regulator.ko",
+    "drivers/regulator/pwm-regulator.ko",
+    "drivers/rtc/rtc-max77686.ko",
+    "drivers/rtc/rtc-tegra.ko",
+    "drivers/spi/spi-tegra114.ko",
+    "drivers/spi/spi-tegra210-quad.ko",
+    "drivers/thermal/tegra/tegra-bpmp-thermal.ko",
+    "drivers/thermal/tegra/tegra-soctherm.ko",
+    "drivers/tty/serial/serial-tegra.ko",
+    "drivers/usb/common/usb-conn-gpio.ko",
+    "drivers/usb/gadget/udc/tegra-xudc.ko",
+    "drivers/usb/typec/ucsi/ucsi_ccg.ko",
+    "drivers/usb/host/xhci-tegra.ko",
+    "drivers/video/backlight/pwm_bl.ko",
+    "net/mac80211/mac80211.ko",
+    "net/wireless/cfg80211.ko",
+    "sound/soc/codecs/snd-soc-rl6231.ko",
+    "sound/soc/codecs/snd-soc-rt5659.ko",
+    "sound/soc/generic/snd-soc-audio-graph-card.ko",
+    "sound/soc/generic/snd-soc-simple-card-utils.ko",
+    "sound/soc/tegra/snd-soc-tegra-audio-graph-card.ko",
+    "sound/soc/tegra/snd-soc-tegra-pcm.ko",
+    "sound/soc/tegra/snd-soc-tegra210-admaif.ko",
+    "sound/soc/tegra/snd-soc-tegra210-adx.ko",
+    "sound/soc/tegra/snd-soc-tegra210-ahub.ko",
+    "sound/soc/tegra/snd-soc-tegra210-amx.ko",
+    "sound/soc/tegra/snd-soc-tegra210-dmic.ko",
+    "sound/soc/tegra/snd-soc-tegra210-i2s.ko",
+    "sound/soc/tegra/snd-soc-tegra210-mixer.ko",
+    "sound/soc/tegra/snd-soc-tegra210-mvc.ko",
+    "sound/soc/tegra/snd-soc-tegra210-ope.ko",
+    "sound/soc/tegra/snd-soc-tegra210-sfc.ko",
+    "sound/soc/tegra/snd-soc-tegra186-asrc.ko",
+    "sound/soc/tegra/snd-soc-tegra186-dspk.ko",
+]
+
+_TEGRA_K612_MODULES_LIST = [
+    # keep sorted
+    "drivers/cpufreq/cpufreq-dt-platdev.ko",
+    "drivers/net/phy/realtek.ko",
+    "sound/hda/snd-hda-core.ko",
+    "sound/pci/hda/snd-hda-codec.ko",
+    "sound/pci/hda/snd-hda-codec-hdmi.ko",
+    "sound/pci/hda/snd-hda-tegra.ko",
+]
+
+_TEGRA_K618_MODULES_LIST = [
+    # keep sorted
+    "drivers/net/phy/realtek/realtek.ko",
+    "sound/hda/codecs/hdmi/snd-hda-codec-hdmi.ko",
+    "sound/hda/codecs/hdmi/snd-hda-codec-tegrahdmi.ko",
+    "sound/hda/common/snd-hda-codec.ko",
+    "sound/hda/controllers/snd-hda-tegra.ko",
+    "sound/hda/core/snd-hda-core.ko",
+]
+
+kernel_build(
+    name = "kernel_aarch64_tegra",
+    srcs = ["//vendor/nvidia/kernel:kernel_aarch64_sources",],
+    outs = [],
+    arch = "arm64",
+
+    # Enable mixed build.
+    base_kernel = "//vendor/nvidia/kernel:kernel_aarch64",
+    collect_unstripped_modules = True,
+    defconfig = "//vendor/nvidia/kernel:arch/arm64/configs/gki_defconfig",
+    keep_module_symvers = True,
+    kmi_symbol_list = "//vendor/nvidia/kernel:gki/aarch64/symbols/tegra",
+    make_goals = [
+        "modules",
+    ],
+    makefile = "//vendor/nvidia/kernel:Makefile",
+    module_outs = _TEGRA_MODULES_LIST + _TEGRA_K618_MODULES_LIST,
+    pre_defconfig_fragments = ["tegra.fragment"],
+    strip_modules = True,
+)
+
+kernel_build(
+    name = "kernel_aarch64_tegra_612",
+    srcs = ["//vendor/nvidia/kernel:kernel_aarch64_sources",],
+    outs = [],
+    arch = "arm64",
+
+    # Enable mixed build.
+    base_kernel = "//vendor/nvidia/kernel:kernel_aarch64",
+    collect_unstripped_modules = True,
+    defconfig = "//vendor/nvidia/kernel:arch/arm64/configs/gki_defconfig",
+    keep_module_symvers = True,
+    kmi_symbol_list = "//vendor/nvidia/kernel:gki/aarch64/symbols/tegra",
+    make_goals = [
+        "modules",
+    ],
+    makefile = "//vendor/nvidia/kernel:Makefile",
+    module_outs = _TEGRA_MODULES_LIST + _TEGRA_K612_MODULES_LIST,
+    pre_defconfig_fragments = ["tegra.fragment"],
+    strip_modules = True,
+)
+
+alias(
+    name = "kernel_tegra",
+    actual = select({
+        "kernel_612": ":kernel_aarch64_tegra_612",
+        "//conditions:default": ":kernel_aarch64_tegra",
+    }),
+    visibility = ["//visibility:public"],
+)
+
+pkg_files(
+    name = "tegra_dist_files",
+    srcs = [
+        ":kernel_tegra",
+        # Mixed build: Additional GKI artifacts.
+        "//vendor/nvidia/kernel:kernel_aarch64",
+        "//vendor/nvidia/kernel:kernel_aarch64_modules",
+        "//vendor/nvidia/kernel:kernel_aarch64_system_dlkm_image",
+    ],
+    strip_prefix = strip_prefix.files_only(),
+)
+pkg_install(
+    name = "tegra_dist",
+    srcs = [":tegra_dist_files"],
+    destdir = "out/tegra/dist",
+)

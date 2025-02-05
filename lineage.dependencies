@@ -1,0 +1,7 @@
+[
+ {
+   "repository": "android_kernel_nvidia_kernel",
+   "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/kernel",
+   "branch": "lineage-23.2_6.12"
+ }
+]
