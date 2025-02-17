@@ -3,5 +3,21 @@
    "repository": "android_kernel_nvidia_kernel",
    "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/kernel",
    "branch": "lineage-23.2_6.12"
+ },
+ {
+   "repository": "android_hardware_nvidia_t18x_lineage",
+   "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/tegra/dts/t18x/lineage"
+ },
+ {
+   "repository": "android_hardware_nvidia_t19x_lineage",
+   "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/tegra/dts/t19x/lineage"
+ },
+ {
+   "repository": "android_hardware_nvidia_t21x_lineage",
+   "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/tegra/dts/t21x/lineage"
+ },
+ {
+   "repository": "android_hardware_nvidia_t21x_nx",
+   "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/tegra/dts/t21x/nx"
  }
 ]

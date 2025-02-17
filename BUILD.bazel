@@ -174,10 +174,52 @@ _TEGRA_K618_MODULES_LIST = [
     "sound/hda/core/snd-hda-core.ko",
 ]
 
+_TEGRA_DTB_LIST = [
+    # keep sorted
+    "tegra186-quill-p3310-1000-c03-00-base.dtb",
+    "tegra186-p3636-0001-p3509-0000-a01-android.dtb",
+    "tegra194-p2888-0001-p2822-0000.dtb",
+    "tegra194-p3668-0000-p3509-0000-android.dtb",
+    "tegra194-p3668-0001-p3509-0000-android.dtb",
+    "tegra210-baracus.dtb",
+    "tegra210-darcy-p2894-0000-a00-00.dtb",
+    "tegra210-darcy-p2894-0050-a04-00.dtb",
+    "tegra210-darcy-p2894-0050-a08-00.dtb",
+    "tegra210-darcy-p2894-0052-a08-00.dtb",
+    "tegra210-foster-e-hdd-cpc-p2530-0933-e03-00.dtb",
+    "tegra210-foster-e-hdd-p2530-0932-e01-00.dtb",
+    "tegra210-foster-e-hdd-p2530-0932-e02-00.dtb",
+    "tegra210-foster-e-p2530-0930-e01-00.dtb",
+    "tegra210-foster-e-p2530-0930-e02-00.dtb",
+    "tegra210-jetson-tx1-p2597-2180-a01-android-devkit.dtb",
+    "tegra210-loki-e-p2530-0030-e01-00.dtb",
+    "tegra210-loki-e-p2530-0030-e02-00.dtb",
+    "tegra210-loki-e-p2530-0030-e03-00.dtb",
+    "tegra210-loki-e-p2530-0031-e01-00.dtb",
+    "tegra210-loki-e-p2530-0031-e02-00.dtb",
+    "tegra210-loki-e-p2530-0031-e03-00.dtb",
+    "tegra210-p3448-0000-p3449-0000-a02-android-devkit.dtb",
+    "tegra210-p3448-0000-p3449-0000-b00-android-devkit.dtb",
+    "tegra210-p3448-0002-p3449-0000-a02-android-devkit.dtb",
+    "tegra210-p3448-0002-p3449-0000-b00-android-devkit.dtb",
+    "tegra210-p3448-0003-p3542-0000-android-devkit.dtb",
+    "tegra210b01-darcy-p2894-0050-a08-00.dtb",
+    "tegra210b01-darcy-p2894-2551-b00-00.dtb",
+    "tegra210b01-darcy-p2894-3551-b03-00.dtb",
+    "tegra210b01-sif-p3425-0500-a01.dtb",
+    "tegra210b01-sif-p3425-0500-a02.dtb",
+    "tegra210b01-sif-p3425-0500-a04.dtb",
+    "tegra210-odin.dtb",
+    "tegra210b01-odin.dtb",
+    "tegra210b01-vali.dtb",
+    "tegra210b01-fric.dtb",
+]
+
 kernel_build(
     name = "kernel_aarch64_tegra",
     srcs = ["//vendor/nvidia/kernel:kernel_aarch64_sources",],
-    outs = [],
+    dtstree = "//vendor/nvidia/tegra/dts:tegra_dts",
+    outs = _TEGRA_DTB_LIST,
     arch = "arm64",
 
     # Enable mixed build.
@@ -188,6 +230,7 @@ kernel_build(
     kmi_symbol_list = "//vendor/nvidia/kernel:gki/aarch64/symbols/tegra",
     make_goals = [
         "modules",
+        "dtbs",
     ],
     makefile = "//vendor/nvidia/kernel:Makefile",
     module_outs = _TEGRA_MODULES_LIST + _TEGRA_K618_MODULES_LIST,
@@ -198,7 +241,8 @@ kernel_build(
 kernel_build(
     name = "kernel_aarch64_tegra_612",
     srcs = ["//vendor/nvidia/kernel:kernel_aarch64_sources",],
-    outs = [],
+    dtstree = "//vendor/nvidia/tegra/dts:tegra_dts",
+    outs = _TEGRA_DTB_LIST,
     arch = "arm64",
 
     # Enable mixed build.
@@ -209,6 +253,7 @@ kernel_build(
     kmi_symbol_list = "//vendor/nvidia/kernel:gki/aarch64/symbols/tegra",
     make_goals = [
         "modules",
+        "dtbs",
     ],
     makefile = "//vendor/nvidia/kernel:Makefile",
     module_outs = _TEGRA_MODULES_LIST + _TEGRA_K612_MODULES_LIST,
