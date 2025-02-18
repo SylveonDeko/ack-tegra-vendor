@@ -5,6 +5,10 @@
    "branch": "lineage-23.2_6.12"
  },
  {
+   "repository": "android_kernel_nvidia_lineage-oot",
+   "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/lineage-oot"
+ },
+ {
    "repository": "android_hardware_nvidia_t18x_lineage",
    "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/tegra/dts/t18x/lineage"
  },

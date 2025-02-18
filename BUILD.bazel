@@ -4,7 +4,10 @@ load("@rules_pkg//pkg:install.bzl", "pkg_install")
 load("@rules_pkg//pkg:mappings.bzl", "pkg_files", "strip_prefix")
 load(
     "//build/kernel/kleaf:kernel.bzl",
+    "kernel_abi",
     "kernel_build",
+    "kernel_module_group",
+    "kernel_modules_install",
 )
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 
@@ -270,10 +273,58 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "kernel_tegra_headers",
+    actual = select({
+        "kernel_612": ":kernel_aarch64_tegra_612_headers",
+        "//conditions:default": ":kernel_aarch64_tegra_headers",
+    }),
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "kernel_tegra_uapi_headers",
+    actual = select({
+        "kernel_612": ":kernel_aarch64_tegra_612_uapi_headers",
+        "//conditions:default": ":kernel_aarch64_tegra_uapi_headers",
+    }),
+)
+
+kernel_module_group(
+    name = "tegra_external_modules",
+    srcs = [
+        "//vendor/nvidia/lineage-oot:hid-nvidia-shield-oot",
+    ],
+)
+
+kernel_modules_install(
+    name = "tegra_modules_install",
+    kernel_build = "//vendor/nvidia/kernel:kernel_aarch64",
+    outs = [ "modules.dep", "modules.alias", ],
+    kernel_modules = [
+        ":tegra_external_modules",
+    ],
+)
+
+pkg_files(
+    name = "uapi_headers_dist_files",
+    srcs = [
+        "//vendor/nvidia/kernel:kernel_aarch64_uapi_headers",
+    ],
+    strip_prefix = strip_prefix.files_only(),
+)
+pkg_install(
+    name = "tegra_uapi_headers_dist",
+    srcs = [":tegra_uapi_headers_dist_files"],
+    destdir = "out/tegra/dist",
+)
+
 pkg_files(
     name = "tegra_dist_files",
     srcs = [
         ":kernel_tegra",
+        ":tegra_modules_install",
+        ":uapi_headers_dist_files",
         # Mixed build: Additional GKI artifacts.
         "//vendor/nvidia/kernel:kernel_aarch64",
         "//vendor/nvidia/kernel:kernel_aarch64_modules",
@@ -285,4 +336,10 @@ pkg_install(
     name = "tegra_dist",
     srcs = [":tegra_dist_files"],
     destdir = "out/tegra/dist",
+)
+
+kernel_abi(
+    name = "tegra_abi",
+    kernel_build = ":kernel_tegra",
+    kernel_modules = [":tegra_external_modules"],
 )
