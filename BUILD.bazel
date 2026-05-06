@@ -93,6 +93,7 @@ _TEGRA_MODULES_LIST = [
     "drivers/net/ethernet/stmicro/stmmac/stmmac.ko",
     "drivers/net/ethernet/stmicro/stmmac/stmmac-platform.ko",
     "drivers/net/pcs/pcs_xpcs.ko",
+    "drivers/net/phy/phy_package.ko",
     "drivers/net/wireless/broadcom/brcm80211/brcmfmac/bca/brcmfmac-bca.ko",
     "drivers/net/wireless/broadcom/brcm80211/brcmfmac/cyw/brcmfmac-cyw.ko",
     "drivers/net/wireless/broadcom/brcm80211/brcmfmac/wcc/brcmfmac-wcc.ko",
@@ -135,8 +136,6 @@ _TEGRA_MODULES_LIST = [
     "drivers/usb/typec/ucsi/ucsi_ccg.ko",
     "drivers/usb/host/xhci-tegra.ko",
     "drivers/video/backlight/pwm_bl.ko",
-    "net/mac80211/mac80211.ko",
-    "net/wireless/cfg80211.ko",
     "sound/soc/codecs/snd-soc-rl6231.ko",
     "sound/soc/codecs/snd-soc-rt5659.ko",
     "sound/soc/generic/snd-soc-audio-graph-card.ko",
@@ -188,7 +187,6 @@ kernel_build(
     collect_unstripped_modules = True,
     defconfig = "//vendor/nvidia/kernel:arch/arm64/configs/gki_defconfig",
     keep_module_symvers = True,
-    kmi_symbol_list = "//vendor/nvidia/kernel:gki/aarch64/symbols/tegra",
     make_goals = [
         "modules",
     ],
@@ -209,7 +207,6 @@ kernel_build(
     collect_unstripped_modules = True,
     defconfig = "//vendor/nvidia/kernel:arch/arm64/configs/gki_defconfig",
     keep_module_symvers = True,
-    kmi_symbol_list = "//vendor/nvidia/kernel:gki/aarch64/symbols/tegra",
     make_goals = [
         "modules",
     ],
