@@ -250,7 +250,6 @@ kernel_module_group(
         "//vendor/nvidia/lineage-oot:rm31080a_ctrl",
         "//vendor/nvidia/lineage-oot:rm31080a_ts",
         "//vendor/nvidia/lineage-oot:max77620-restart",
-        "//vendor/nvidia/lineage-oot:snd-soc-es755",
     ],
 )
 
