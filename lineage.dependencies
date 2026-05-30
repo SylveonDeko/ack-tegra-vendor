@@ -1,27 +1,27 @@
 [
  {
    "repository": "android_kernel_nvidia_kernel",
-   "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/kernel",
-   "branch": "lineage-23.2_6.12"
+   "target_path": "kernel/platform/kernel-6.18/vendor/nvidia/kernel",
+   "branch": "lineage-24.0_6.18"
  },
  {
    "repository": "android_kernel_nvidia_lineage-oot",
-   "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/lineage-oot"
+   "target_path": "kernel/platform/kernel-6.18/vendor/nvidia/lineage-oot"
  },
  {
    "repository": "android_hardware_nvidia_t18x_lineage",
-   "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/tegra/dts/t18x/lineage"
+   "target_path": "kernel/platform/kernel-6.18/vendor/nvidia/t18x-devicetrees"
  },
  {
    "repository": "android_hardware_nvidia_t19x_lineage",
-   "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/tegra/dts/t19x/lineage"
+   "target_path": "kernel/platform/kernel-6.18/vendor/nvidia/t19x-devicetrees"
  },
  {
    "repository": "android_hardware_nvidia_t21x_lineage",
-   "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/tegra/dts/t21x/lineage"
+   "target_path": "kernel/platform/kernel-6.18/vendor/nvidia/t21x-devicetrees"
  },
  {
    "repository": "android_hardware_nvidia_t21x_nx",
-   "target_path": "kernel/platform/kernel-6.12/vendor/nvidia/tegra/dts/t21x/nx"
+   "target_path": "kernel/platform/kernel-6.18/vendor/nvidia/nx-devicetrees"
  }
 ]
