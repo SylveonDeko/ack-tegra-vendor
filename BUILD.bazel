@@ -294,6 +294,11 @@ kernel_module_group(
     name = "tegra_external_modules",
     srcs = [
         "//vendor/nvidia/lineage-oot:hid-nvidia-shield-oot",
+        "//vendor/nvidia/lineage-oot:panel-jdi-58-1440-810",
+        "//vendor/nvidia/lineage-oot:rm31080a_ctrl",
+        "//vendor/nvidia/lineage-oot:rm31080a_ts",
+        "//vendor/nvidia/lineage-oot:max77620-restart",
+        "//vendor/nvidia/lineage-oot:snd-soc-es755",
     ],
 )
 
