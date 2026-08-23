@@ -13,8 +13,8 @@ load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 
 string_flag(
     name = "kernel_version",
-    build_setting_default = "6.18",
-    values = ["6.12", "6.18"],
+    build_setting_default = "mainline",
+    values = ["6.12", "6.18", "mainline"],
 )
 config_setting(
     name = "kernel_612",
@@ -23,6 +23,10 @@ config_setting(
 config_setting(
     name = "kernel_618",
     flag_values = {":kernel_version": "6.18"},
+)
+config_setting(
+    name = "kernel_mainline",
+    flag_values = {":kernel_version": "mainline"},
 )
 
 _TEGRA_MODULES_LIST = [
@@ -122,6 +126,7 @@ _TEGRA_MODULES_LIST = [
     "drivers/power/supply/bq24190_charger.ko",
     "drivers/power/supply/bq27xxx_battery.ko",
     "drivers/power/supply/bq27xxx_battery_i2c.ko",
+    "drivers/power/supply/max17042_battery.ko",
     "drivers/pwm/pwm-tegra.ko",
     "drivers/regulator/max77620-regulator.ko",
     "drivers/regulator/max77812-regulator.ko",
@@ -182,6 +187,16 @@ _TEGRA_K618_MODULES_LIST = [
     "sound/hda/core/snd-hda-core.ko",
 ]
 
+_TEGRA_MAINLINE_MODULES_LIST = [
+    # keep sorted
+    "drivers/net/phy/realtek/realtek.ko",
+    "sound/hda/codecs/hdmi/snd-hda-codec-hdmi.ko",
+    "sound/hda/codecs/hdmi/snd-hda-codec-tegrahdmi.ko",
+    "sound/hda/common/snd-hda-codec.ko",
+    "sound/hda/controllers/snd-hda-tegra.ko",
+    "sound/hda/core/snd-hda-core.ko",
+]
+
 kernel_build(
     name = "kernel_aarch64_tegra",
     srcs = ["//vendor/nvidia/kernel:kernel_aarch64_sources",],
@@ -197,8 +212,30 @@ kernel_build(
         "modules",
     ],
     makefile = "//vendor/nvidia/kernel:Makefile",
+    module_outs = _TEGRA_MODULES_LIST + _TEGRA_MAINLINE_MODULES_LIST,
+    pre_defconfig_fragments = ["tegra.fragment"],
+    pahole = "//common:pahole",
+    strip_modules = True,
+)
+
+kernel_build(
+    name = "kernel_aarch64_tegra_618",
+    srcs = ["//vendor/nvidia/kernel:kernel_aarch64_sources",],
+    outs = [],
+    arch = "arm64",
+
+    # Enable mixed build.
+    base_kernel = "//vendor/nvidia/kernel:kernel_aarch64",
+    collect_unstripped_modules = True,
+    defconfig = "//vendor/nvidia/kernel:arch/arm64/configs/gki_defconfig",
+    keep_module_symvers = True,
+    make_goals = [
+        "modules",
+    ],
+    makefile = "//vendor/nvidia/kernel:Makefile",
     module_outs = _TEGRA_MODULES_LIST + _TEGRA_K618_MODULES_LIST,
     pre_defconfig_fragments = ["tegra.fragment"],
+    pahole = "//common:pahole",
     strip_modules = True,
 )
 
@@ -219,6 +256,7 @@ kernel_build(
     makefile = "//vendor/nvidia/kernel:Makefile",
     module_outs = _TEGRA_MODULES_LIST + _TEGRA_K612_MODULES_LIST,
     pre_defconfig_fragments = ["tegra.fragment"],
+    pahole = "//common:pahole",
     strip_modules = True,
 )
 
@@ -226,6 +264,7 @@ alias(
     name = "kernel_tegra",
     actual = select({
         "kernel_612": ":kernel_aarch64_tegra_612",
+        "kernel_618": ":kernel_aarch64_tegra_618",
         "//conditions:default": ":kernel_aarch64_tegra",
     }),
     visibility = ["//visibility:public"],
@@ -235,6 +274,7 @@ alias(
     name = "kernel_tegra_headers",
     actual = select({
         "kernel_612": ":kernel_aarch64_tegra_612_headers",
+        "kernel_618": ":kernel_aarch64_tegra_618_headers",
         "//conditions:default": ":kernel_aarch64_tegra_headers",
     }),
     visibility = ["//visibility:public"],
@@ -244,6 +284,7 @@ alias(
     name = "kernel_tegra_uapi_headers",
     actual = select({
         "kernel_612": ":kernel_aarch64_tegra_612_uapi_headers",
+        "kernel_618": ":kernel_aarch64_tegra_618_uapi_headers",
         "//conditions:default": ":kernel_aarch64_tegra_uapi_headers",
     }),
 )
@@ -287,15 +328,15 @@ pkg_files(
         ":kernel_tegra",
         ":tegra_modules_install",
         ":uapi_headers_dist_files",
-        "//vendor/nvidia/t18x-devicetrees:dtbs",
-        "//vendor/nvidia/t18x-devicetrees:dtbos",
-        "//vendor/nvidia/t18x-devicetrees:dtbo_image",
-        "//vendor/nvidia/t18x-devicetrees:dtbo_verifications",
-        "//vendor/nvidia/t19x-devicetrees:dtbs",
-        "//vendor/nvidia/t19x-devicetrees:dtbos",
-        "//vendor/nvidia/t19x-devicetrees:dtbo_image",
-        "//vendor/nvidia/t19x-devicetrees:dtbo_verifications",
-        "//vendor/nvidia/t21x-devicetrees:dtbs",
+#        "//vendor/nvidia/t18x-devicetrees:dtbs",
+#        "//vendor/nvidia/t18x-devicetrees:dtbos",
+#        "//vendor/nvidia/t18x-devicetrees:dtbo_image",
+#        "//vendor/nvidia/t18x-devicetrees:dtbo_verifications",
+#        "//vendor/nvidia/t19x-devicetrees:dtbs",
+#        "//vendor/nvidia/t19x-devicetrees:dtbos",
+#        "//vendor/nvidia/t19x-devicetrees:dtbo_image",
+#        "//vendor/nvidia/t19x-devicetrees:dtbo_verifications",
+#        "//vendor/nvidia/t21x-devicetrees:dtbs",
         "//vendor/nvidia/nx-devicetrees:dtbs",
         # Mixed build: Additional GKI artifacts.
         "//vendor/nvidia/kernel:kernel_aarch64",
