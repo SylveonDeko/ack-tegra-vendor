@@ -145,6 +145,7 @@ _TEGRA_MODULES_LIST = [
     "drivers/soc/tegra/r2p-tegra.ko",
     "drivers/spi/spi-tegra114.ko",
     "drivers/spi/spi-tegra210-quad.ko",
+    "drivers/thermal/max77620_thermal.ko",
     "drivers/thermal/tegra/tegra-bpmp-thermal.ko",
     "drivers/thermal/tegra/tegra-soctherm.ko",
     "drivers/tty/serial/serial-tegra.ko",
